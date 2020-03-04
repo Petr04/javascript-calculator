@@ -1,0 +1,109 @@
+:root {
+	--color: #EBCD84;
+	--color-dark: #B09A63;
+	--bg-color: white;
+
+	--button-depth: 15px;
+	--button-width: 50px;
+	--button-height: var(--button-width);
+	--radius: 5px;
+}
+
+body {
+	margin: 0;
+	height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	background: var(--bg-color);
+	font-family: roboto;
+}
+
+* { font-size: 20px; }
+
+.calculator {
+	display: grid;
+	grid-row-gap: 20px;
+	grid-column-gap: 10px;
+	grid-template-rows: repeat(5, var(--button-height));
+	grid-template-columns: repeat(5, var(--button-width));
+}
+
+.subgrid {
+	display: inline-grid;
+	grid-row-gap: inherit;
+	grid-column-gap: inherit;
+	grid-template-rows: repeat(4, var(--button-height));
+}
+
+.buttons {
+	grid-row-start: 2;
+}
+
+.numbers {
+	grid-template-columns: repeat(3, var(--button-width));
+	grid-area: 1 / 1 / 4 / 4;
+}
+
+.opers {
+	grid-template-columns: repeat(2, var(--button-width));
+	grid-row-start: 1;
+	grid-column-start: 4;
+}
+
+.numbers * {
+	--color: #EBCD84;
+	--color-dark: #B09A63;
+}
+
+.opers * {
+	--color: #6128E7;
+	--color-dark: #491EAD;
+	color: white;
+}
+
+.button {
+	cursor: pointer;
+	user-select: none;
+}
+
+.buttons .button {
+	background: var(--color);
+	border-radius: var(--radius);
+	box-shadow: 0 var(--button-depth) 0 0 var(--color-dark);
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.buttons .button:active {
+	transform: translateY(var(--button-depth));
+	box-shadow: 0 0 0 0 black;
+}
+
+
+.input {
+	border: 3px solid #383838;
+	background: white;
+	box-shadow: 0 var(--button-depth) 0 0 #383838;
+	border-radius: var(--radius);
+	padding: 20px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	grid-area: 1 / 1 / 2 / 6;
+}
+
+.input input {
+	border: none;
+	font-size: 20px;
+}
+
+.input .button:active {
+	transform: translateY(3px);
+	cursor: pointer;
+}
+
+input:focus { outline: none; }
