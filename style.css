@@ -3,10 +3,13 @@
 	--color-dark: #B09A63;
 	--bg-color: white;
 
-	--button-depth: 15px;
-	--button-width: 50px;
-	--button-height: var(--button-width);
-	--radius: 5px;
+	--button-size: 10vh;
+	--button-depth: calc(var(--button-size) * .12);
+
+	--font-size: calc(var(--button-size) * .3);
+	--input-height: calc(var(--button-size) * .7);
+	--gap: calc(var(--button-size) * .08);
+	--radius: calc(var(--button-size) * .07);
 }
 
 body {
@@ -17,24 +20,23 @@ body {
 	justify-content: center;
 
 	background: var(--bg-color);
-	font-family: roboto;
+	font-family: 'Roboto';
+	font-size: var(--font-size);
 }
-
-* { font-size: 20px; }
 
 .calculator {
 	display: grid;
-	grid-row-gap: 20px;
-	grid-column-gap: 10px;
-	grid-template-rows: repeat(5, var(--button-height));
-	grid-template-columns: repeat(5, var(--button-width));
+	grid-row-gap: calc(var(--gap) + var(--button-depth));
+	grid-column-gap: var(--gap);
+	grid-template-rows: var(--input-height) repeat(4, var(--button-size));
+	grid-template-columns: repeat(5, var(--button-size));
 }
 
 .subgrid {
 	display: inline-grid;
 	grid-row-gap: inherit;
 	grid-column-gap: inherit;
-	grid-template-rows: repeat(4, var(--button-height));
+	grid-template-rows: repeat(4, var(--button-size));
 }
 
 .buttons {
@@ -42,12 +44,12 @@ body {
 }
 
 .numbers {
-	grid-template-columns: repeat(3, var(--button-width));
+	grid-template-columns: repeat(3, var(--button-size));
 	grid-area: 1 / 1 / 4 / 4;
 }
 
 .opers {
-	grid-template-columns: repeat(2, var(--button-width));
+	grid-template-columns: repeat(2, var(--button-size));
 	grid-row-start: 1;
 	grid-column-start: 4;
 }
@@ -98,7 +100,8 @@ body {
 
 .input input {
 	border: none;
-	font-size: 20px;
+	font-size: inherit;
+	min-width: 0px;
 }
 
 .input .button:active {

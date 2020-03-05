@@ -1,55 +1,51 @@
 "use strict"
 
-function makeDivClass(className) {
-	let div = document.createElement('div');
-	div.className = className;
-	return div
-}
+/* uses:
+	opers.js
+	alg.js
+	interaction.js
+*/
 
-
-let square = '²';
-let root = '√';
-let opers = Array.from('²√*/+-=');
 let calculated = false;
 
-function checkDiff(s, diff) {
-	// let digits = [];
-	// for (let i = 0; i < 10; i++) digits.push(String(i));
+let timer;
+let isTimerRunning = false;
 
-	// let last = s[s.length - 1];
-
-	// return (opers + digits + '.').includes(diff) &&
-	// 	!( opers.includes(last) && opers.includes(diff) );
-	return true;
+function backspaceButtonDown(event) {
+	isTimerRunning = true;
+	timer = setTimeout(function () {
+		input.value = '';
+		isTimerRunning = false;
+	}, 600);
 }
 
+function backspaceButtonUp(event) {
+	if (isTimerRunning) {
+		input.value = input.value.slice(0, -1);
+		clearTimeout(timer);
+		isTimerRunning = false;
+	};
+}
+
+let input;
 function makeInput() {
 	let inputDiv = document.createElement('div');
 	inputDiv.className = 'input';
 
-	let input = document.createElement('input');
-	input.id = 'input';
-
-	input.lastValue = input.value;
+	input = document.createElement('input');
 
 	input.oninput = function (event) {
-		let diff = this.value[this.value.length - 1];
-
 		if (calculated) {
-			this.lastValue = '';
-		}
+			let diff = this.value[this.value.length - 1];
 
-		let correct = checkDiff(this.lastValue, diff);
-
-		if (!correct)
-			this.value = this.lastValue;
-		else if (calculated) {
-			if (!opers.includes(diff))
+			if (!opers.includes(diff)) {
 				this.value = diff;
+			}
+
 			calculated = false;
 		}
 
-		this.lastValue = this.value;
+		this.value = correct(this.value);
 	};
 
 	inputDiv.append(input);
@@ -58,23 +54,8 @@ function makeInput() {
 	backspace.className = 'button';
 	backspace.innerText = '⌫';
 
-	let timer;
-	let isTimerRunning = false;
-
-	backspace.addEventListener('mousedown', function (event) {
-		isTimerRunning = true;
-		timer = setTimeout(function () {
-			input.value = '';
-			isTimerRunning = false;
-		}, 700);
-	});
-	backspace.addEventListener('mouseup', function (event) {
-		if (isTimerRunning) {
-			input.value = input.value.slice(0, -1);
-			clearTimeout(timer);
-			isTimerRunning = false;
-		};
-	});
+	backspace.addEventListener('pointerdown', backspaceButtonDown);
+	backspace.addEventListener('pointerup', backspaceButtonUp);
 
 	inputDiv.append(backspace);
 
@@ -105,79 +86,33 @@ function makeNumbers() {
 	let subgrid = makeDivClass('subgrid');
 	subgrid.classList.add('numbers');
 
-	for (let i = 0; i <= 10; i++) {
-		subgrid.append( makeNumButton(i) );
+	subgrid.append( makeNumButton(10) );
+	subgrid.append( makeNumButton(0) );
+
+	for (let i = 7; i >= 1; i -= 3) {
+		for (let j = 0; j < 3; j++)
+			subgrid.append( makeNumButton(i+j) );
 	}
 
 	return subgrid;
 }
 
 
-function exprCharType(c) {
-	if (opers.includes(c)) {
-		return 'oper';
-	}
-	return 'digit';
-}
-
-function splitExpr(expr) {
-	let ret = [];
-	let lastType = null;
-
-	for (let c of expr) {
-		let newType = exprCharType(c);
-		if ((newType != lastType) || (lastType == 'oper'))
-			ret.push('');
-
-		ret[ret.length - 1] += c;
-
-		lastType = newType;
-	}
-
-	return ret;
-}
-
-function solveBinary(splitted, oper, f, type) {
-	let ret = [];
-	let transform = (x) => String(f(Number(x)));
-
-	for (let i = 0; i < splitted.length; i++) {
-		if (splitted[i] == oper) {
-			if (type == 'prefix') {
-				ret.push(transform(splitted[++i]));
-			} else {
-				ret[i-1] = transform(ret[i-1]);
-			}
-		} else
-			ret.push(splitted[i]);
-	}
-
-	return ret;
-}
-
-function calculate(expr) {
-	let splitted = splitExpr(expr);
-
-	splitted = solveBinary(splitted, square, (x) => x*x, 'postfix');
-	splitted = solveBinary(splitted, root, Math.sqrt, 'prefix');
-
-	calculated = true;
-	return eval(splitted.join(''));
-}
-
 function makeOpers() {
 	let subgrid = makeDivClass('subgrid');
 	subgrid.classList.add('opers');
 
-	opers.forEach(function (oper) {
+	opers.concat(['=']).forEach(function (oper) {
 		let button = makeDivClass('button');
 		button.innerText = oper;
 
 		if (oper == '=') {
 			button.style['grid-column'] = '1 / 3';
-			button.onclick = function (event) {
+
+			button.addEventListener('pointerdown', function (event) {
 				input.value = calculate(input.value);
-			};
+			});
+
 		} else addInputOnClick(button);
 
 		subgrid.append(button);
@@ -186,15 +121,12 @@ function makeOpers() {
 	return subgrid;
 }
 
-function inputValue(input, value) {
-	input.value = value;
-	input.dispatchEvent(new Event('input'));
-}
 
 function addInputOnClick(button, num) {
-	button.onclick = function (event) {
-		inputValue(input, input.value + button.innerText)
-	};
+	button.addEventListener('pointerdown', function (event) {
+		inputValue(input, input.value + button.innerText);
+		console.log('down');
+	});
 }
 
 
@@ -212,16 +144,18 @@ function makeCalculator() {
 	return calc;
 }
 
+window.oncontextmenu = function(event) {
+	event.preventDefault();
+	event.stopPropagation();
+	return false;
+};
+
 let calc = makeCalculator();
 document.body.append(calc);
 document.onkeydown = function (event) {
 	if (event.code == 'Enter') {
-		if (calculated) {
-			input.value = '';
-			calculated = false;
-		}
-
 		input.value = calculate(input.value);
+		calculated = true;
 	}
 	input.focus();
 }
